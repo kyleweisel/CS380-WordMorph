@@ -1,3 +1,9 @@
+#
+# CS 380 Homework 1
+# April 11, 2015
+# Kyle Weisel (weisel@drexel.edu)
+#
+
 from random import randint
 
 class Rule:
@@ -21,14 +27,14 @@ class State:
     currentState = ""
     dictionary = []
 
+    def isFinished(self):
+        return self.currentState == self.FINAL_STATE
+
     def __init__(self):
         self.currentState = self.INITIAL_STATE
         with open('dict1000.txt') as f:
             self.dictionary = [line.rstrip('\n') for line in f]
             self.currentState = self.INITIAL_STATE
-
-    def isFinished(self):
-        return self.currentState == self.FINAL_STATE
 
     def __str__(self):
         return "The current state is the word: " + str(self.currentState)
@@ -114,9 +120,11 @@ def flailWildly(state):
         loops += 1
 
 
+# This is the entry point to the application
 def main():
 
     state = State()
     flailWildly(state)
+
 
 main()
