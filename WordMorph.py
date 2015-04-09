@@ -1,3 +1,5 @@
+from random import randint
+
 class Rule:
 
     index = 0
@@ -8,7 +10,7 @@ class Rule:
         self.char = char
 
     def __str__(self):
-        return "Changes the character at index " + str(self.index) + " to " + self.char
+        return "The rule will change the character at index " + str(self.index) + " to " + str(self.char)
 
 
 class State:
@@ -28,6 +30,9 @@ class State:
     def isFinished(self):
         return self.currentState == self.FINAL_STATE
 
+    def __str__(self):
+        return "The current state is the word: " + str(self.currentState)
+
 
 def goal(state):
     return state.isFinished()
@@ -39,6 +44,10 @@ def applyRule(rule, state):
     newState = ''.join(i for i in currentStateList)
     # state.currentState = newState
     return newState
+
+
+def applyRuleToState(rule, state):
+    state.currentState = applyRule(rule, state)
 
 
 def precondition(rule, state):
@@ -61,7 +70,7 @@ def generateRules(state):
             changeChar = ""
 
             for j in range(0, len(stateAsList)):
-                if stateAsList[j] == matchAsList[j]:
+                if stateAsList[j] != matchAsList[j]:
                     changeIndex = j
                     changeChar = matchAsList[j]
 
@@ -71,11 +80,13 @@ def generateRules(state):
 
 
 def describeState(state):
-    print "The current state is the word: " + str(state.currentState)
+    print state
+    return str(state)
 
 
 def describeRule(rule):
-    print "The rule will change the character at index " + str(rule.index) + " to " + str(rule.char)
+    print rule
+    return str(rule)
 
 
 def numMatchedChars(a, b):
@@ -91,11 +102,21 @@ def numMatchedChars(a, b):
         return -1
 
 
+def flailWildly(state):
+
+    loops = 0
+    while not (goal(state)):
+        print "Executing loop " + str(loops)
+        describeState(state)
+        rules = generateRules(state)
+        applyRuleToState(rules[randint(0, len(rules)-1)], state)
+        print "The new state is " + state.currentState
+        loops += 1
+
+
 def main():
 
     state = State()
-    describeState(state)
-
-    print "New state is: " + applyRule(Rule(1, "e"), state)
+    flailWildly(state)
 
 main()
