@@ -8,7 +8,7 @@ class Rule:
         self.char = char
 
     def __str__(self):
-        return "foo"
+        return "Changes the character at index " + str(self.index) + " to " + self.char
 
 
 class State:
