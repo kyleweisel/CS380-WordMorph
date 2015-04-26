@@ -6,6 +6,7 @@
 
 from random import randint
 
+
 class Rule:
 
     index = 0
@@ -48,7 +49,6 @@ def applyRule(rule, state):
     currentStateList = list(state.currentState)
     currentStateList[rule.index] = rule.char
     newState = ''.join(i for i in currentStateList)
-    # state.currentState = newState
     return newState
 
 
@@ -108,6 +108,10 @@ def numMatchedChars(a, b):
         return -1
 
 
+def deadEnd(state):
+    return False
+
+
 def flailWildly(state):
 
     loops = 0
@@ -120,11 +124,56 @@ def flailWildly(state):
         loops += 1
 
 
+def backTrack(stateList):
+
+    DEPTH_BOUND = 1000
+
+    print "Executing backTrack() with list length" + str(len(stateList))
+
+    currentState = stateList[-1]
+
+    if stateList.count(currentState) > 1:
+        return "FAILED-1"
+
+    if deadEnd(currentState):
+        return "FAILED-2"
+
+    if goal(currentState):
+        return None
+
+    if len(stateList) > DEPTH_BOUND:
+        return "FAILED-3"
+
+    ruleSet = generateRules(currentState)
+    print "\tEGenerated this many rules: " + str(len(ruleSet))
+
+    if ruleSet == []:
+        return "FAILED-4"
+
+    for rule in ruleSet:
+        ##newState = applyRule(rule, currentState)
+
+        applyRuleToState(rule, currentState)
+
+        stateList.append(currentState)
+        path = backTrack(stateList)
+
+        if type(path) == list:
+            path.append(rule)
+            return path
+
+    return "FAILED-5"
+
 # This is the entry point to the application
 def main():
 
     state = State()
-    flailWildly(state)
+    stateList = []
+    stateList.append(state)
+    #flailWildly(state)
+    backTrack(stateList)
+
+    print "Final state is " + str(stateList[-1].currentState)
 
 
 main()
