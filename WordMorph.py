@@ -1,6 +1,6 @@
 #
-# CS 380 Homework 1
-# April 11, 2015
+# CS 380 Homework 2
+# April 27, 2015
 # Kyle Weisel (weisel@drexel.edu)
 #
 
