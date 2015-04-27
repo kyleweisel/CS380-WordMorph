@@ -7,6 +7,7 @@
 # Execution settings
 INITIAL_STATE = "beach"
 FINAL_STATE = "shore"
+DEBUG = False
 
 
 class Rule:
@@ -19,7 +20,7 @@ class Rule:
         self.char = char
 
     def __str__(self):
-        return "The rule will change the character at index " + str(self.index) + " to " + str(self.char)
+        return "(" + str(self.index) + " , " + str(self.char) + ")"
 
 
 class State:
@@ -83,7 +84,8 @@ def generate_rules(state, dictionary):
 
         if num_matched_chars(state.value, dictionary.words[i]) == 4:
 
-            #print "\tgenerate_rules() -> Identified possible next state: {}".format(dictionary.words[i])
+            if DEBUG:
+                print "\tgenerate_rules() -> Identified possible next state: {}".format(dictionary.words[i])
 
             # Find the changed character
             state_as_list = list(state.value)
@@ -99,18 +101,21 @@ def generate_rules(state, dictionary):
 
             rules.append(Rule(change_index, change_char))
 
-    #print "\tgenerate_rules() -> Generated {} rules this pass".format(len(rules))
+    if DEBUG:
+        print "\tgenerate_rules() -> Generated {} rules this pass".format(len(rules))
 
     return rules
 
 
 def describe_state(state):
-    print state
+    if DEBUG:
+        print state
     return str(state)
 
 
 def describe_rule(rule):
-    print rule
+    if DEBUG:
+        print rule
     return str(rule)
 
 
@@ -135,18 +140,28 @@ def flail_wildly(state):
 
     loops = 0
     while not (goal(state)):
-        #print "Executing loop " + str(loops)
+        if DEBUG:
+            print "Executing loop " + str(loops)
         describe_state(state)
         rules = generate_rules(state)
         #apply_rule_to_state(rules[randint(0, len(rules)-1)], state)
-        #print "The new state is " + state.currentState
+        if DEBUG:
+            print "The new state is " + state.currentState
         loops += 1
 
 
 def back_track(stateList, dictionary):
 
-    #print "back_track() -> len(stateList) = {} ".format(len(stateList))
-    #print "\tback_track() -> current state value is: {}".format(stateList[-1].value)
+    if DEBUG:
+        print "back_track() -> len(stateList) = {} ".format(len(stateList))
+
+    pathToHere = ""
+    for state in stateList:
+        pathToHere += state.value + " --> "
+
+    if DEBUG:
+        print "\tback_track() -> current state list is: {}".format(pathToHere)
+        print "\tback_track() -> current state value is: {}".format(stateList[-1].value)
 
     DEPTH_BOUND = 1000
 
@@ -154,30 +169,36 @@ def back_track(stateList, dictionary):
 
 
     if stateList.count(currentState) > 1:
-        #print '\tback_track() -> State exists more than once!  Returning FAILED-1'
+        if DEBUG:
+            print '\tback_track() -> State exists more than once!  Returning FAILED-1'
         return "FAILED-1"
 
     if is_dead_end(currentState):
-        #print '\tback_track() -> State is a dead end!  Returning FAILED-2'
+        if DEBUG:
+            print '\tback_track() -> State is a dead end!  Returning FAILED-2'
         return "FAILED-2"
 
     if goal(currentState):
-        #print '\tback_track() -> Reached goal!  Returning SUCCESS'
-        return True
+        if DEBUG:
+            print '\tback_track() -> Reached goal!  Returning SUCCESS'
+        return []
 
     if len(stateList) > DEPTH_BOUND:
-        #print '\tback_track() -> State list exceeds depth bound!  Returning FAILED-3'
+        if DEBUG:
+            print '\tback_track() -> State list exceeds depth bound!  Returning FAILED-3'
         return "FAILED-3"
 
     ruleSet = generate_rules(currentState, dictionary)
 
     if ruleSet == []:
-        #print "\tback_track() -> Returned rule set was empty!  Returning FAILED-4"
+        if DEBUG:
+            print "\tback_track() -> Returned rule set was empty!  Returning FAILED-4"
         return "FAILED-4"
 
     for rule in ruleSet:
         newState = apply_rule(rule, currentState)
-        #print "\tback_track() -> Generated new state value {}!".format(newState.value)
+        if DEBUG:
+            print "\tback_track() -> Generated new state value {}!".format(newState.value)
         newStateList = stateList[:]
         newStateList.append(newState)
         path = back_track(newStateList, dictionary)
@@ -186,9 +207,20 @@ def back_track(stateList, dictionary):
             path.append(rule)
             return path
 
-    #print "Returning from back_track() with FAILED-5"
+    if DEBUG:
+        print "Returning from back_track() with FAILED-5"
     return "FAILED-5"
 
+
+def describePath(path):
+
+    rulesString = ""
+    for rule in path:
+        rulesString += describe_rule(rule) + " --> "
+
+    rulesString += "END"
+
+    return rulesString
 
 # This is the entry point to the application
 def main():
@@ -199,7 +231,10 @@ def main():
     stateList = []
     stateList.append(state)
 
-    print back_track(stateList, dictionary)
+    path = back_track(stateList, dictionary)
+
+    print describePath(path)
+
 
 
 main()
